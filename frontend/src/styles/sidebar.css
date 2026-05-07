@@ -1,0 +1,161 @@
+.admin-sidebar {
+  width: 280px;
+  background: #0f172a;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 20px;
+  color: white;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 48px;
+  padding: 0 12px;
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--primary);
+  border-radius: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+}
+
+.brand-text h2 {
+  color: white;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.brand-text p {
+  color: #6366f1;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.nav-section-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+  padding: 0 12px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.nav-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+  color: white;
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.nav-link.active .nav-icon {
+  color: var(--primary);
+}
+
+.active-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--primary);
+  border-radius: 50%;
+  margin-left: auto;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.user-mini-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.mini-avatar {
+  width: 40px;
+  height: 40px;
+  background: #334155;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.mini-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mini-role {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.logout-button-pro {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 14px;
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-button-pro:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}

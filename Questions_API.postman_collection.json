@@ -1,0 +1,201 @@
+{
+  "info": {
+    "_postman_id": "b3e0281b-5e3a-442d-9af7-66a7b752df25",
+    "name": "Exam Portal API",
+    "description": "API endpoints for the Exam Portal, specifically Questions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Must do this first!)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var csrf_cookie = pm.cookies.get('csrf_access_token');",
+                  "if(csrf_cookie) {",
+                  "    pm.collectionVariables.set('csrf_token', csrf_cookie);",
+                  "    console.log('CSRF Token extracted:', csrf_cookie);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Log in to get the JWT access cookie. You must run this request first before accessing the Questions API, otherwise you will get a 401 Unauthorized error. Make sure to use an email that has 'staff' or 'admin' privileges."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Questions",
+      "item": [
+        {
+          "name": "Get Questions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/portal/questions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "portal",
+                "questions"
+              ],
+              "query": [
+                {
+                  "key": "subject_id",
+                  "value": "1",
+                  "description": "Filter by Subject ID",
+                  "disabled": true
+                },
+                {
+                  "key": "topic_id",
+                  "value": "1",
+                  "description": "Filter by Topic ID",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "MCQ",
+                  "description": "Filter by Type (e.g., MCQ, True/False)",
+                  "disabled": true
+                },
+                {
+                  "key": "difficulty",
+                  "value": "Medium",
+                  "description": "Filter by Difficulty (Easy, Medium, Hard)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieve a list of questions. You can filter them by subject, topic, type, or difficulty using query parameters."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Question (MCQ)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrf_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject_id\": 1,\n  \"topic_id\": 1,\n  \"type\": \"MCQ\",\n  \"question_text\": \"Which of the following is a dynamically typed language?\",\n  \"difficulty\": \"Easy\",\n  \"correct_answer\": \"Python\",\n  \"explanation\": \"Python determines variable types at runtime.\",\n  \"status\": \"Active\",\n  \"options\": [\n    {\n      \"text\": \"Java\",\n      \"is_correct\": false\n    },\n    {\n      \"text\": \"C++\",\n      \"is_correct\": false\n    },\n    {\n      \"text\": \"Python\",\n      \"is_correct\": true\n    },\n    {\n      \"text\": \"C\",\n      \"is_correct\": false\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/portal/questions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "portal",
+                "questions"
+              ]
+            },
+            "description": "Create a new Multiple Choice Question (MCQ)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Question (True/False)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrf_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject_id\": 1,\n  \"topic_id\": 1,\n  \"type\": \"True/False\",\n  \"question_text\": \"Python is a compiled language.\",\n  \"difficulty\": \"Medium\",\n  \"correct_answer\": \"False\",\n  \"explanation\": \"Python is generally interpreted, not compiled directly to machine code.\",\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/portal/questions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "portal",
+                "questions"
+              ]
+            },
+            "description": "Create a new True/False question."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

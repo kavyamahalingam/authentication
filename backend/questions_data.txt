@@ -1,0 +1,297 @@
+## 1. Data Structure – Array, Tree, List
+
+1. What is a data structure?
+2. What is an array?
+3. What are the advantages of arrays?
+4. What is a linked list?
+5. What is the difference between array and linked list?
+6. What is a tree in data structure?
+7. What is the root node in a tree?
+8. What is binary tree?
+9. What is stack and queue?
+10. What is the use of data structures in programming?
+
+---
+
+## 2. Algorithm & Sorting – Bubble, Merge, Quick Sort
+
+1. What is an algorithm?
+2. What is sorting?
+3. Explain bubble sort.
+4. What is merge sort?
+5. What is quick sort?
+6. Which sorting algorithm is faster?
+7. What is time complexity?
+8. What is the best case of bubble sort?
+9. What is divide and conquer technique?
+10. What are the applications of sorting algorithms?
+
+---
+
+## 3. OOPS – OOPS Concepts
+
+1. What is OOPS?
+2. What is a class?
+3. What is an object?
+4. What is inheritance?
+5. What is polymorphism?
+6. What is encapsulation?
+7. What is abstraction?
+8. What is constructor?
+9. What is method overloading?
+10. What are the advantages of OOPS?
+
+---
+
+## 4. Database Management System – SQL, NoSQL
+
+1. What is DBMS?
+2. What is SQL?
+3. What is NoSQL?
+4. What is a primary key?
+5. What is a foreign key?
+6. What is normalization?
+7. What is a table in database?
+8. What is the difference between SQL and NoSQL?
+9. What is CRUD operation?
+10. What are joins in SQL?
+
+---
+
+## 5. Operating System – Process, Memory, Scheduling
+
+1. What is an operating system?
+2. What is a process?
+3. What is process scheduling?
+4. What is memory management?
+5. What is multitasking?
+6. What is virtual memory?
+7. What is CPU scheduling?
+8. What is deadlock?
+9. What is paging?
+10. What are the functions of an operating system?
+
+---
+
+## 6. Computer Network – IP, TCP, OSI
+
+1. What is a computer network?
+2. What is an IP address?
+3. What is TCP?
+4. What is the OSI model?
+5. How many layers are in OSI model?
+6. What is a router?
+7. What is a switch?
+8. What is LAN?
+9. What is WAN?
+10. What is the difference between TCP and UDP?
+
+---
+
+## 7. Grammar – Tenses, Voice
+
+1. What is grammar?
+2. What is tense?
+3. What are the types of tenses?
+4. What is present tense?
+5. What is past tense?
+6. What is future tense?
+7. What is active voice?
+8. What is passive voice?
+9. Convert an active sentence into passive voice.
+10. Why is grammar important?
+
+---
+
+## 8. Parts of Speech – Sentence and Structure
+
+1. What are parts of speech?
+2. What is a noun?
+3. What is a pronoun?
+4. What is a verb?
+5. What is an adjective?
+6. What is an adverb?
+7. What is a sentence?
+8. What are the types of sentences?
+9. What is sentence structure?
+10. Why are parts of speech important?
+
+---
+
+## 9. Vocabulary – Synonyms, Antonyms
+
+1. What is vocabulary?
+2. What is a synonym?
+3. What is an antonym?
+4. Give a synonym for “happy”.
+5. Give an antonym for “strong”.
+6. What is the importance of vocabulary?
+7. How can vocabulary be improved?
+8. What are homophones?
+9. What are compound words?
+10. What is contextual meaning?
+
+---
+
+## 10. Idioms – Idioms
+
+1. What is an idiom?
+2. What does “piece of cake” mean?
+3. What does “break the ice” mean?
+4. What does “hit the nail on the head” mean?
+5. What does “once in a blue moon” mean?
+6. What does “under the weather” mean?
+7. Why are idioms used in English?
+8. What is the meaning of “spill the beans”?
+9. What is the meaning of “cost an arm and a leg”?
+10. Write one idiom and its meaning.
+
+---
+
+## 11. Number Theory – Prime
+
+1. What is a prime number?
+2. What is a composite number?
+3. Is 2 a prime number?
+4. Why is 1 not a prime number?
+5. What are factors?
+6. What are multiples?
+7. Find the prime numbers between 1 and 20.
+8. What is the smallest prime number?
+9. What is the largest known prime number?
+10. What are the applications of prime numbers?
+
+---
+
+## 12. Number Theory – Numbers
+
+1. What are natural numbers?
+2. What are whole numbers?
+3. What are integers?
+4. What are rational numbers?
+5. What are irrational numbers?
+6. What are even numbers?
+7. What are odd numbers?
+8. What is a decimal number?
+9. What is a fraction?
+10. What is place value?
+
+---
+
+## 13. Number Theory – Divisible
+
+1. What is divisibility?
+2. What is divisible by 2?
+3. What is divisible by 3?
+4. What is divisible by 5?
+5. What is divisible by 10?
+6. How do you check divisibility by 9?
+7. What is remainder?
+8. What is quotient?
+9. What is a divisor?
+10. Why are divisibility rules important?
+
+---
+
+## 14. Set Theory – Logic
+
+1. What is a set?
+2. What are elements in a set?
+3. What is union of sets?
+4. What is intersection of sets?
+5. What is an empty set?
+6. What is subset?
+7. What is logic?
+8. What is a statement in logic?
+9. What is Boolean algebra?
+10. What are applications of set theory?
+
+---
+
+## 15. Newton Law – Theory
+
+1. Who discovered Newton’s laws?
+2. What is Newton’s first law?
+3. What is Newton’s second law?
+4. What is Newton’s third law?
+5. What is inertia?
+6. What is force?
+7. What is acceleration?
+8. What is momentum?
+9. Give an example of Newton’s third law.
+10. Why are Newton’s laws important?
+
+---
+
+## 16. Human Body – System
+
+1. What is the human body system?
+2. What are the major systems in the body?
+3. What is the skeletal system?
+4. What is the muscular system?
+5. What is the respiratory system?
+6. What is the circulatory system?
+7. What is the digestive system?
+8. What is the nervous system?
+9. Why are body systems important?
+10. How do body systems work together?
+
+---
+
+## 17. Human Body – Digestive
+
+1. What is digestion?
+2. What is the digestive system?
+3. What is the function of the stomach?
+4. What is the function of the small intestine?
+5. What is the function of the large intestine?
+6. What are digestive enzymes?
+7. What is absorption?
+8. What is the role of saliva?
+9. Why is digestion important?
+10. What foods help digestion?
+
+---
+
+## 18. Human Body – Nervous
+
+1. What is the nervous system?
+2. What is the brain?
+3. What is the spinal cord?
+4. What are neurons?
+5. What is the function of nerves?
+6. What is reflex action?
+7. What is the central nervous system?
+8. What is the peripheral nervous system?
+9. How does the brain control the body?
+10. Why is the nervous system important?
+
+---
+
+## 19. Human Body – Circulatory
+
+1. What is the circulatory system?
+2. What is the function of the heart?
+3. What are blood vessels?
+4. What are arteries?
+5. What are veins?
+6. What is blood pressure?
+7. What is the role of blood?
+8. What is pulse rate?
+9. Why is oxygen important in blood circulation?
+10. How can we keep the circulatory system healthy?
+
+---
+
+## 20. Population – Urbanisation
+
+1. What is population?
+2. What is urbanisation?
+3. Why do people move to cities?
+4. What are the advantages of urbanisation?
+5. What are the disadvantages of urbanisation?
+6. What is migration?
+7. What is overpopulation?
+8. How does urbanisation affect the environment?
+9. What are smart cities?
+10. What are the solutions for urban population problems?

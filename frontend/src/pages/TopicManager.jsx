@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Edit2, Trash2, ListTree, 
-  BookOpen, Filter, X, Check, ChevronRight 
+  BookOpen, Filter, X, Check, ChevronRight, RefreshCw, Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,6 +13,14 @@ const TopicManager = () => {
   const [editingTopic, setEditingTopic] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('all');
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [pendingTopics, setPendingTopics] = useState([]);
+  const [reviewMode, setReviewMode] = useState(false);
+  const [bulkData, setBulkData] = useState({
+    subject_id: '',
+    count: 5
+  });
   const [formData, setFormData] = useState({
     subject_id: '',
     name: '',
@@ -38,6 +46,74 @@ const TopicManager = () => {
       console.error('Failed to fetch topics/subjects');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBulkGenerate = async (e) => {
+    if (e) e.preventDefault();
+    setBulkLoading(true);
+    try {
+      const subject = subjects.find(s => s.id === Number(bulkData.subject_id))?.name || "";
+      const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrf_access_token='))?.split('=')[1];
+      
+      const res = await fetch('/api/portal/generate-questions', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({
+          subject_id: bulkData.subject_id,
+          type: 'Topics Only', 
+          count: bulkData.count,
+          subject,
+          auto_save: false
+        })
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        if (result.topics) {
+          setPendingTopics(result.topics);
+          setReviewMode(true);
+        }
+      }
+    } catch (err) {
+      alert('Generation failed');
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleSaveAllTopics = async () => {
+    setBulkLoading(true);
+    try {
+      const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrf_access_token='))?.split('=')[1];
+      for (const topic of pendingTopics) {
+        await fetch('/api/portal/topics', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+          },
+          body: JSON.stringify({
+            subject_id: bulkData.subject_id,
+            name: topic.name,
+            description: topic.description,
+            sequence: 0,
+            status: 'Active'
+          })
+        });
+      }
+      fetchData();
+      setShowBulkModal(false);
+      setReviewMode(false);
+      setPendingTopics([]);
+      alert('All topics saved successfully');
+    } catch (err) {
+      alert('Error saving some topics');
+    } finally {
+      setBulkLoading(false);
     }
   };
 
@@ -74,7 +150,6 @@ const TopicManager = () => {
 
   return (
     <div className="space-y-8 animate-fade">
-      {/* Header Actions */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">Curriculum Topics</h2>
@@ -105,6 +180,13 @@ const TopicManager = () => {
             </div>
           </div>
           <button 
+            onClick={() => setShowBulkModal(true)}
+            className="btn-pro bg-indigo-50 text-indigo-600 h-[54px] px-6 border border-indigo-100 hover:bg-indigo-100"
+          >
+            <Zap size={20} />
+            <span>AI Suggest Topics</span>
+          </button>
+          <button 
             onClick={() => { setEditingTopic(null); setFormData({ subject_id: '', name: '', description: '', sequence: 0, status: 'Active' }); setShowModal(true); }}
             className="btn-pro btn-pro-primary h-[54px] px-8"
           >
@@ -113,6 +195,70 @@ const TopicManager = () => {
           </button>
         </div>
       </div>
+
+      {/* Bulk AI Modal */}
+      <AnimatePresence>
+        {showBulkModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowBulkModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" />
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+            >
+              <div className="p-10 border-b border-slate-50 flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tight">AI Topic Suggestion</h3>
+                  <p className="text-slate-500 font-medium text-sm mt-1">Automatically structure your curriculum modules.</p>
+                </div>
+                <button onClick={() => setShowBulkModal(false)} className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button>
+              </div>
+
+              {reviewMode ? (
+                <div className="flex flex-col h-full max-h-[70vh]">
+                  <div className="p-10 space-y-6 overflow-y-auto flex-1 bg-slate-50/50">
+                    {pendingTopics.map((t, idx) => (
+                      <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                        <div className="flex items-start gap-4 mb-2">
+                           <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs shrink-0">{idx + 1}</div>
+                           <h4 className="font-bold text-slate-800">{t.name}</h4>
+                        </div>
+                        <p className="text-slate-500 text-sm font-medium pl-10">{t.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-10 border-t border-slate-100 bg-white flex gap-4">
+                    <button onClick={() => { setReviewMode(false); setPendingTopics([]); }} className="flex-1 py-4 rounded-2xl font-black text-slate-500 hover:bg-slate-50 border border-slate-200">Discard</button>
+                    <button onClick={handleSaveAllTopics} disabled={bulkLoading} className="flex-[1.5] py-4 bg-emerald-500 text-white rounded-2xl font-black shadow-lg shadow-emerald-200 flex items-center justify-center gap-2">
+                      {bulkLoading ? <div className="w-5 h-5 border-2 border-white border-t-transparent animate-spin rounded-full" /> : <Check size={20} />}
+                      Save All Topics
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleBulkGenerate} className="p-10 space-y-8">
+                  <div>
+                    <label className="input-pro-label">Parent Subject</label>
+                    <select required className="input-pro" value={bulkData.subject_id} onChange={(e) => setBulkData({...bulkData, subject_id: e.target.value})}>
+                      <option value="">Select a subject...</option>
+                      {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="input-pro-label">Suggestions Count</label>
+                    <input type="number" min="1" max="10" className="input-pro" value={bulkData.count} onChange={(e) => setBulkData({...bulkData, count: e.target.value})} />
+                  </div>
+                  <div className="flex gap-4 pt-4">
+                    <button type="button" onClick={() => setShowBulkModal(false)} className="flex-1 py-5 rounded-2xl font-black text-slate-500 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" disabled={bulkLoading} className="flex-1 py-5 btn-pro btn-pro-primary rounded-2xl">
+                      {bulkLoading ? 'Thinking...' : 'Generate Suggestions'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Table Section */}
       <div className="admin-table-container">

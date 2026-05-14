@@ -5,6 +5,7 @@ import {
   ChevronRight, Calendar, Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { tracker } from '../services/activityTracker';
 
 const ExamManager = () => {
   const [exams, setExams] = useState([]);
@@ -64,6 +65,9 @@ const ExamManager = () => {
       if (res.ok) {
         fetchData();
         setShowModal(false);
+        if (!editingExam) {
+          tracker.custom('exam_scheduled', `New professional assessment scheduled: ${formData.title}`, 'Exam Scheduled');
+        }
         setFormData({ subject_id: '', topic_id: '', title: '', description: '', duration_minutes: 30, passing_score: 50, status: 'Active' });
       }
     } catch (err) {

@@ -4,9 +4,14 @@ import {
   Settings, LogOut, Menu, X, Shield, Bell, User, Users, Activity as ActivityIcon, Award, Search 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import NotificationPanel from './NotificationPanel';
 
-const PortalLayout = ({ user, activeView, setView, onLogout, children }) => {
+const PortalLayout = ({ 
+  user, activeView, setView, onLogout, setActivityMode, 
+  unreadCount = 0, onNotificationsRead, children 
+}) => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isNotificationsOpen, setNotificationsOpen] = useState(false);
 
   const menuItems = [
     { id: 'staff_dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -67,26 +72,6 @@ const PortalLayout = ({ user, activeView, setView, onLogout, children }) => {
               </nav>
             </div>
 
-            <div className="mt-auto p-6 border-t border-border">
-              <div className="p-4 bg-bg-card rounded-2xl mb-6 border border-border">
-                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-bg-surface border border-border flex items-center justify-center text-xs font-black">
-                       {user?.email?.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                       <p className="text-sm font-bold truncate">{user?.email?.split('@')[0]}</p>
-                       <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Enterprise</p>
-                    </div>
-                 </div>
-              </div>
-              <button 
-                onClick={onLogout}
-                className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-rose-500 hover:bg-rose-500/10 transition-all font-black text-xs uppercase tracking-[0.2em] border border-rose-500/10"
-              >
-                <LogOut size={18} />
-                <span>Term. Session</span>
-              </button>
-            </div>
           </motion.aside>
         )}
       </AnimatePresence>
@@ -118,16 +103,35 @@ const PortalLayout = ({ user, activeView, setView, onLogout, children }) => {
                <input type="text" placeholder="Global system search..." className="bg-transparent border-none outline-none ml-3 text-sm font-bold w-full text-white" />
             </div>
 
-            <div className="flex items-center gap-4">
-              <button className="p-3 text-text-muted hover:text-primary hover:bg-primary/5 rounded-2xl transition-all relative">
+            <div className="flex items-center gap-4 relative">
+              <button 
+                onClick={() => {
+                  setNotificationsOpen(!isNotificationsOpen);
+                  if (onNotificationsRead) onNotificationsRead();
+                }}
+                className={`p-3 text-text-muted hover:text-primary hover:bg-primary/5 rounded-2xl transition-all relative ${isNotificationsOpen ? 'text-primary bg-primary/5' : ''}`}
+              >
                 <Bell size={22} />
-                <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full border-2 border-bg-deep"></span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[10px] font-black rounded-full border-2 border-bg-deep flex items-center justify-center animate-bounce">
+                    {unreadCount}
+                  </span>
+                )}
               </button>
+              
+              <NotificationPanel 
+                user={user} 
+                isOpen={isNotificationsOpen} 
+                onClose={() => setNotificationsOpen(false)} 
+              />
               <div className="h-10 w-px bg-border mx-2" />
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-bg-card rounded-[18px] flex items-center justify-center text-primary font-black border border-border hover:scale-105 transition-transform cursor-pointer">
+                <button 
+                  onClick={() => setView('profile')}
+                  className={`w-12 h-12 bg-bg-card rounded-[18px] flex items-center justify-center text-primary font-black border border-border hover:scale-105 transition-transform cursor-pointer ${activeView === 'profile' ? 'border-primary ring-2 ring-primary/20' : ''}`}
+                >
                   <User size={22} />
-                </div>
+                </button>
               </div>
             </div>
           </div>

@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def init_db():
+    connection = None
+    cursor = None
     try:
         connection = mysql.connector.connect(
             host=os.getenv('DB_HOST', 'localhost'),
@@ -209,9 +211,18 @@ def init_db():
     except Error as e:
         print(f"Error while connecting to MySQL: {e}")
     finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
+        # Safely close cursor and connection if they were created
+        if 'cursor' in locals() and cursor:
+            try:
+                cursor.close()
+            except Exception:
+                pass
+        if 'connection' in locals() and connection:
+            try:
+                if connection.is_connected():
+                    connection.close()
+            except Exception:
+                pass
 
 if __name__ == '__main__':
     init_db()

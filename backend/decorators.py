@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import jsonify
-from flask_jwt_extended import get_jwt, jwt_required
+from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity
 from models import User
 
 def role_required(role):
@@ -22,10 +22,12 @@ def admin_required(f):
     @wraps(f)
     @jwt_required()
     def decorated_function(*args, **kwargs):
+        email = get_jwt_identity()
         claims = get_jwt()
         user_role = claims.get('role', 'user')
-        if user_role.lower() != 'admin':
-            return jsonify({"msg": "Admin access required"}), 403
+        
+        if user_role.lower() != 'admin' or email != 'mahalaxmimahaa2009@gmail.com':
+            return jsonify({"msg": "Admin access forbidden: unauthorized identity"}), 403
         return f(*args, **kwargs)
     return decorated_function
 

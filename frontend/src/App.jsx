@@ -16,8 +16,9 @@ import ExamPerformance from './pages/ExamPerformance';
 import LandingPage from './pages/LandingPage';
 import SettingsPage from './pages/SettingsPage';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, LogOut, UserPlus, Fingerprint, Mail, Lock, User, Home, Settings, Shield, BookOpen, ChevronRight, ArrowRight } from 'lucide-react';
+import { LogIn, LogOut, UserPlus, Fingerprint, Mail, Lock, User, Home, Settings, Shield, BookOpen, ChevronRight, ArrowRight, HelpCircle, Bell } from 'lucide-react';
 import { tracker } from './services/activityTracker';
+import NotificationPanel from './components/NotificationPanel';
 
 const API_BASE = '/api/auth';
 
@@ -28,10 +29,12 @@ const App = () => {
   const [userExamId, setUserExamId] = useState(null);
   const [examId, setExamId] = useState(null);
   const [examFilter, setExamFilter] = useState('all');
+  const [activityMode, setActivityMode] = useState('all');
+  const [isNotificationsOpen, setNotificationsOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
-  const [adminKey, setAdminKey] = useState('');
   const [portal, setPortal] = useState('user'); 
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -48,6 +51,26 @@ const App = () => {
       root.setAttribute('data-theme', savedTheme);
     }
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      const interval = setInterval(fetchUnreadCount, 60000); // Check every minute
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await fetch('/api/auth/notifications');
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadNotifications(data.unread_count);
+      }
+    } catch (err) {
+      console.error('Failed to fetch unread count');
+    }
+  };
 
   useEffect(() => {
     tracker.pageView(view);
@@ -88,7 +111,7 @@ const App = () => {
     const payload = view === 'login' 
       ? { email, password } 
       : (portal === 'admin' 
-          ? { email, password, otp_code: otp, admin_key: adminKey } 
+          ? { email, password, otp_code: otp } 
           : { email, password, otp_code: otp });
 
     try {
@@ -159,10 +182,18 @@ const App = () => {
   );
 
   const renderStaffPortal = () => {
-    const staffViews = ['staff_dashboard', 'subjects', 'topics', 'questions', 'exams', 'exam_performance', 'users', 'activities', 'settings'];
+    const staffViews = ['staff_dashboard', 'subjects', 'topics', 'questions', 'exams', 'exam_performance', 'users', 'activities', 'settings', 'profile'];
     if (staffViews.includes(view)) {
       return (
-        <PortalLayout user={user} activeView={view} setView={setView} onLogout={handleLogout}>
+        <PortalLayout 
+          user={user} 
+          activeView={view} 
+          setView={setView} 
+          onLogout={handleLogout} 
+          setActivityMode={setActivityMode}
+          unreadCount={unreadNotifications}
+          onNotificationsRead={() => setUnreadNotifications(0)}
+        >
           {view === 'staff_dashboard' && <Dashboard user={user} setView={setView} />}
           {view === 'subjects' && <SubjectManager />}
           {view === 'topics' && <TopicManager />}
@@ -170,8 +201,9 @@ const App = () => {
           {view === 'exams' && <ExamManager />}
           {view === 'exam_performance' && <ExamPerformance />}
           {view === 'users' && <UserManager currentUser={user} />}
-          {view === 'activities' && <ActivityLog />}
+          {view === 'activities' && <ActivityLog mode={activityMode} />}
           {view === 'settings' && <SettingsPage user={user} setView={setView} />}
+          {view === 'profile' && <ProfilePage user={user} onLogout={handleLogout} onAdminClick={() => setView('admin')} />}
         </PortalLayout>
       );
     }
@@ -190,21 +222,56 @@ const App = () => {
             <motion.div key="portal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-screen">
               {renderStaffPortal()}
             </motion.div>
-          ) : view === 'student_dashboard' ? (
-            <motion.div key="student_dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          ) : ['student_dashboard', 'exam_center', 'profile', 'settings'].includes(view) && !['Admin', 'Teacher', 'Content Creator', 'staff'].includes(user.role) ? (
+            <motion.div key="student_portal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="max-w-6xl mx-auto px-6 py-10">
-                <StudentDashboard user={user} setView={setView} setExamFilter={setExamFilter} />
+                <header className="flex items-center justify-between mb-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-primary/20 text-primary rounded-xl flex items-center justify-center">
+                      <Shield size={22} />
+                    </div>
+                    <h2 className="text-xl font-black text-white tracking-tight">Quantum Academy</h2>
+                  </div>
+                  <div className="flex items-center gap-4 relative">
+                    <button onClick={() => { setNotificationsOpen(!isNotificationsOpen); setUnreadNotifications(0); }} className={`p-3 text-text-muted hover:text-primary rounded-2xl border border-border transition-all relative ${isNotificationsOpen ? 'bg-primary/10 text-primary' : 'bg-bg-card'}`}>
+                      <Bell size={20} />
+                      {unreadNotifications > 0 && (
+                        <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[10px] font-black rounded-full border-2 border-bg-deep flex items-center justify-center animate-bounce">
+                          {unreadNotifications}
+                        </span>
+                      )}
+                    </button>
+                    
+                    <NotificationPanel 
+                      user={user} 
+                      isOpen={isNotificationsOpen} 
+                      onClose={() => setNotificationsOpen(false)} 
+                    />
+
+                    <button onClick={() => setView('profile')} className={`w-10 h-10 bg-bg-card rounded-xl border border-border flex items-center justify-center text-primary font-black hover:border-primary transition-all ${view === 'profile' ? 'border-primary shadow-lg shadow-primary/20' : ''}`}>
+                      <User size={20} />
+                    </button>
+                  </div>
+                </header>
+
+                {view === 'student_dashboard' ? (
+                  <StudentDashboard user={user} setView={setView} setExamFilter={setExamFilter} />
+                ) : view === 'exam_center' ? (
+                  <ExamCenter 
+                    user={user} 
+                    setView={setView} 
+                    setUserExamId={setUserExamId} 
+                    setExamId={setExamId}
+                    initialFilter={examFilter} 
+                  />
+                ) : view === 'settings' ? (
+                  <SettingsPage user={user} setView={setView} />
+                ) : view === 'activities' ? (
+                   <ActivityLog mode="updates" />
+                ) : (
+                  <ProfilePage user={user} onLogout={handleLogout} onAdminClick={() => setView('admin')} />
+                )}
               </div>
-            </motion.div>
-          ) : view === 'exam_center' ? (
-            <motion.div key="exam_center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <ExamCenter 
-                user={user} 
-                setView={setView} 
-                setUserExamId={setUserExamId} 
-                setExamId={setExamId}
-                initialFilter={examFilter} 
-              />
             </motion.div>
           ) : view === 'exam_session' ? (
             <motion.div key="exam_session" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -214,10 +281,6 @@ const App = () => {
                 setView={setView} 
                 setUserExamId={setUserExamId}
               />
-            </motion.div>
-          ) : view === 'settings' ? (
-            <motion.div key="settings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-               <SettingsPage user={user} setView={setView} />
             </motion.div>
           ) : (
             <motion.div key="profile" initial={{ x: 300, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -300, opacity: 0 }}>
@@ -301,12 +364,7 @@ const App = () => {
                   </div>
                 )}
 
-                {view === 'register' && portal === 'admin' && (
-                  <div className="input-pro-group">
-                    <label className="text-xs font-black text-text-muted uppercase tracking-widest mb-3 block">Admin Key</label>
-                    <input type="password" className="w-full px-6 py-4 bg-bg-card border border-border rounded-2xl outline-none focus:border-primary transition-all text-white font-medium" placeholder="Enter security key" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} required />
-                  </div>
-                )}
+
 
                 <button type="submit" className="btn-premium w-full py-5 text-lg group">
                   {view === 'login' ? 'Continue' : 'Create Account'}
@@ -328,24 +386,47 @@ const App = () => {
       </AnimatePresence>
 
       {/* Modern Bottom Navigation */}
-      {user && !['admin', 'staff_dashboard', 'subjects', 'topics', 'questions', 'exams', 'exam_performance', 'users', 'activities', 'settings', 'exam_session'].includes(view) && (
+      {user && view !== 'exam_session' && (
         <div className="bottom-nav animate-fade">
-          <button onClick={() => setView('student_dashboard')} className={`nav-item ${view === 'student_dashboard' ? 'active' : ''}`}>
-            <Home size={22} />
-            <span>Dashboard</span>
-          </button>
-          <button onClick={() => setView('exam_center')} className={`nav-item ${view === 'exam_center' ? 'active' : ''}`}>
-            <BookOpen size={22} />
-            <span>Exams</span>
-          </button>
-          <button onClick={() => setView('profile')} className={`nav-item ${view === 'profile' ? 'active' : ''}`}>
-            <User size={22} />
-            <span>Profile</span>
-          </button>
-          <button onClick={handleLogout} className="nav-item">
-            <LogOut size={22} />
-            <span>Logout</span>
-          </button>
+          {['Admin', 'Teacher', 'Content Creator', 'staff'].includes(user.role) ? (
+            <>
+              <button onClick={() => setView('staff_dashboard')} className={`nav-item ${view === 'staff_dashboard' ? 'active' : ''}`}>
+                <Home size={22} />
+                <span>Home</span>
+              </button>
+              <button onClick={() => setView('subjects')} className={`nav-item ${['subjects', 'topics'].includes(view) ? 'active' : ''}`}>
+                <BookOpen size={22} />
+                <span>Curriculum</span>
+              </button>
+              <button onClick={() => setView('questions')} className={`nav-item ${view === 'questions' ? 'active' : ''}`}>
+                <HelpCircle size={22} />
+                <span>Questions</span>
+              </button>
+              <button onClick={() => setView('settings')} className={`nav-item ${view === 'settings' ? 'active' : ''}`}>
+                <Settings size={22} />
+                <span>Settings</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => setView('student_dashboard')} className={`nav-item ${view === 'student_dashboard' ? 'active' : ''}`}>
+                <Home size={22} />
+                <span>Dashboard</span>
+              </button>
+              <button onClick={() => setView('exam_center')} className={`nav-item ${view === 'exam_center' ? 'active' : ''}`}>
+                <BookOpen size={22} />
+                <span>Exams</span>
+              </button>
+              <button onClick={() => setView('profile')} className={`nav-item ${view === 'profile' ? 'active' : ''}`}>
+                <User size={22} />
+                <span>Profile</span>
+              </button>
+              <button onClick={() => setView('settings')} className={`nav-item ${view === 'settings' ? 'active' : ''}`}>
+                <Settings size={22} />
+                <span>Settings</span>
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

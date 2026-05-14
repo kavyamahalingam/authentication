@@ -275,16 +275,16 @@ class Profile:
 
 class Activity:
     @staticmethod
-    def create(user_id, action_type, description=None, page_url=None, ip_address=None, user_agent=None, session_id=None):
+    def create(user_id, action_type, description=None, page_url=None, ip_address=None, user_agent=None, session_id=None, **kwargs):
         conn = get_db_connection()
         if not conn: return False
         cursor = conn.cursor()
         try:
             cursor.execute(
                 """INSERT INTO user_activities 
-                   (user_id, action_type, description, page_url, ip_address, user_agent, session_id) 
-                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                (user_id, action_type, description, page_url, ip_address, user_agent, session_id)
+                   (user_id, action_type, description, page_url, ip_address, user_agent, session_id, category) 
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                (user_id, action_type, description, page_url, ip_address, user_agent, session_id, kwargs.get('category', 'General'))
             )
             conn.commit()
             return True
@@ -325,6 +325,65 @@ class Activity:
             query += " ORDER BY a.timestamp DESC LIMIT 1000"
             cursor.execute(query, tuple(params))
             return cursor.fetchall()
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
+    def get_notifications(role, user_id=None):
+        conn = get_db_connection()
+        if not conn: return []
+        cursor = conn.cursor(dictionary=True)
+        try:
+            query = "SELECT * FROM user_activities WHERE 1=1"
+            params = []
+            
+            if role == 'Admin':
+                query += " AND category IN ('System', 'Security', 'Logistics')"
+            elif role in ['Teacher', 'Content Creator', 'staff']:
+                query += " AND category IN ('Exam Completed', 'Exam Attended')"
+            else:
+                # Students see scheduled exams and updates
+                query += " AND category IN ('Exam Scheduled', 'Academic Update')"
+            
+            query += " ORDER BY timestamp DESC LIMIT 50"
+            cursor.execute(query, tuple(params))
+            return cursor.fetchall()
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
+    def mark_as_read(activity_ids):
+        conn = get_db_connection()
+        if not conn: return False
+        cursor = conn.cursor()
+        try:
+            if not activity_ids: return True
+            format_strings = ','.join(['%s'] * len(activity_ids))
+            cursor.execute(f"UPDATE user_activities SET is_read = TRUE WHERE id IN ({format_strings})", tuple(activity_ids))
+            conn.commit()
+            return True
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
+    def get_unread_count(role, user_id=None):
+        conn = get_db_connection()
+        if not conn: return 0
+        cursor = conn.cursor(dictionary=True)
+        try:
+            query = "SELECT COUNT(*) as count FROM user_activities WHERE is_read = FALSE"
+            if role == 'Admin':
+                query += " AND category IN ('System', 'Security', 'Logistics')"
+            elif role in ['Teacher', 'Content Creator', 'staff']:
+                query += " AND category IN ('Exam Completed', 'Exam Attended')"
+            else:
+                query += " AND category IN ('Exam Scheduled', 'Academic Update')"
+            
+            cursor.execute(query)
+            return cursor.fetchone()['count']
         finally:
             cursor.close()
             conn.close()

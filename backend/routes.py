@@ -62,14 +62,13 @@ def admin_register():
     email = data.get('email')
     password = data.get('password')
     otp_code = data.get('otp_code')
-    admin_key = data.get('admin_key')
 
-    if not email or not password or not otp_code or not admin_key:
-        return jsonify({"msg": "Email, password, OTP, and Admin Key required"}), 400
+    if not email or not password or not otp_code:
+        return jsonify({"msg": "Email, password, and OTP required"}), 400
     
-    if admin_key != os.getenv('ADMIN_REGISTRATION_KEY'):
+    if email != 'mahalaxmimahaa2009@gmail.com':
         logger.warning(f"Unauthorized admin registration attempt: {email}")
-        return jsonify({"msg": "Invalid Admin Registration Key"}), 403
+        return jsonify({"msg": "Only mahalaxmimahaa2009@gmail.com is authorized for admin registration"}), 403
 
     if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
         return jsonify({"msg": "Invalid email format"}), 400
@@ -332,6 +331,7 @@ def log_activity():
     action_type = data.get('action_type')
     description = data.get('description')
     page_url = data.get('page_url')
+    category = data.get('category', 'General')
     
     if not action_type:
         return jsonify({"msg": "Action type required"}), 400
@@ -349,7 +349,8 @@ def log_activity():
         description=description,
         page_url=page_url,
         ip_address=request.remote_addr,
-        user_agent=request.user_agent.string
+        user_agent=request.user_agent.string,
+        category=category
     )
     return jsonify({"msg": "Activity logged"}), 200
 
@@ -398,3 +399,28 @@ def export_activities():
     response.headers["Content-Disposition"] = "attachment; filename=activities.csv"
     response.headers["Content-type"] = "text/csv"
     return response
+
+@auth_bp.route('/notifications', methods=['GET'])
+@jwt_required()
+def get_user_notifications():
+    email = get_jwt_identity()
+    user = User.find_by_email(email)
+    if not user: return jsonify([]), 401
+    
+    role = user['role']
+    notifications = Activity.get_notifications(role, user['id'])
+    unread_count = Activity.get_unread_count(role, user['id'])
+    
+    return jsonify({
+        "notifications": notifications,
+        "unread_count": unread_count
+    }), 200
+
+@auth_bp.route('/notifications/mark-read', methods=['POST'])
+@jwt_required()
+def mark_notifications_read():
+    data = request.get_json()
+    activity_ids = data.get('ids', [])
+    if Activity.mark_as_read(activity_ids):
+        return jsonify({"msg": "Marked as read"}), 200
+    return jsonify({"msg": "Failed to mark as read"}), 500

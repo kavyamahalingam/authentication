@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Timer, ChevronLeft, ChevronRight, Send, AlertCircle, CheckCircle, Award, Trophy } from 'lucide-react';
+import { tracker } from '../services/activityTracker';
 
 const ExamSession = ({ userExamId, examId, setView, setUserExamId }) => {
   const [session, setSession] = useState(null);
@@ -69,6 +70,7 @@ const ExamSession = ({ userExamId, examId, setView, setUserExamId }) => {
     setSession(data);
     setTimeLeft(data.duration_minutes * 60);
     startTimer();
+    tracker.custom('exam_started', `Initiated assessment: ${data.title}`, 'Exam Attended');
   };
 
   const startTimer = () => {
@@ -106,6 +108,7 @@ const ExamSession = ({ userExamId, examId, setView, setUserExamId }) => {
       if (res.ok) {
         const data = await res.json();
         setResult(data);
+        tracker.custom('exam_completed', `Completed assessment: ${session.title} with score ${data.score}%`, 'Exam Completed');
       }
     } catch (err) {
       alert('Failed to submit assessment');

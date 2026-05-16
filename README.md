@@ -2,6 +2,11 @@
 
 A production-ready full-stack application built with React, Flask, and MySQL, prioritizing enterprise-grade security and reliable session management.
 
+## Project Overview
+
+This project is a comprehensive Authentication and User Management system designed for secure candidate profile handling. It features a modern React frontend and a robust Flask backend, utilizing industry-standard security practices to ensure data integrity and user privacy.
+
+
 ## Features
 
 - **Secure Authentication**: OTP-based registration and password recovery.
